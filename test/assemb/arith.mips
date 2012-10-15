@@ -1,0 +1,75 @@
+
+#
+# main ()
+# {
+#	output mysub();
+# }
+#
+	.data
+EOL:	.asciiz "\n"
+	.align 2
+	.text
+	.globl	main
+main:
+	sub	$sp, $sp, 4	# prologue
+	sw	$ra, ($sp)	# 1. Push return addr
+	sub	$sp, $sp, 4
+	sw	$fp, ($sp)	# 2. push caller's fp
+		     		# 3. No S regis to push
+	move	$sp, $fp  	# 5. $sp = $fp
+		     		# subroutine call
+				# 1. no T regis to push
+	jal	mysub		# 3. Jump and link to subroutine
+
+				# return from subroutine
+				# 1. No T regis to restore
+
+		     		# print a
+	lw	$a0, 0($v0)	# load a into $a0
+	li	$v0, 1		# print integer service
+	syscall
+	
+	la	$a0, EOL
+	li	$v0, 4
+	syscall 
+				# epilogue
+	add	$sp, $fp, 0	# 2. $sp = $fp + space_for_vars
+		     	  	# 3. no S regs to pop
+	lw	$fp, ($sp)	# 4. pop $fp
+	add	$sp, $sp, 4	#
+	lw	$ra, ($sp)	# 5. pop $ra
+	add	$sp, $sp, 4	#
+
+	li	$v0, 10
+	syscall
+
+
+#
+# int mysub()
+# {
+#	return 1 + 2;
+# }
+#
+
+	.text
+	.globl mysub
+mysub:
+				# prologue
+	sub	$sp, $sp, 4	# 1. push return address
+	sw	$ra, ($sp)
+	sub	$sp, $sp, 4	# 2. Push caller's fp
+	sw	$fp, ($sp)
+	move	$sp, $fp  	# 5. $sp = $fp
+
+		     		# body of code
+	li	$t0, 1
+	add	$v0, $t0, 2	#   arg * 2
+	
+		       		# epilogue
+	lw	$fp, ($sp)	# 4. pop $fp
+	add	$sp, $sp, 4	#
+	lw	$fp, ($sp)	# 5. pop $ra
+	add	$sp, $sp, 4	#
+	jr	$ra  	  	# 6. return to caller
+
+

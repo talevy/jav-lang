@@ -1,0 +1,77 @@
+
+	.text
+	.ent A_f_m
+A_f_m:
+sub	$sp, $sp, 20
+sw	$ra, 8($sp)
+sw	$fp, 4($sp)
+add	$fp, $sp, 20
+lw	$t0, 8($fp)
+li	$t1, 1
+ble	$t0, $t1, l1
+j	l2
+l1:
+li	$v0, 1
+j	A_f_mret
+l2:
+lw	$t0, 8($fp)
+li	$t1, 1
+sub	$t0, $t0, $t1
+sw	$t0, 0($fp)
+sub	$sp, 4
+lw	$t0, 0($fp)
+sw	$t0, 4($sp)
+sub	$sp, 4
+lw	$t0, 4($fp)
+sw	$t0, 4($sp)
+jal	A_f_m
+add	$sp, 8
+sw	$v0, -4($fp)
+lw	$t0, -4($fp)
+lw	$t0, 8($fp)
+lw	$t1, -4($fp)
+mul	$t0, $t0, $t1
+sw	$t0, -8($fp)
+lw	$v0, -8($fp)
+j	A_f_mret
+A_f_mret:
+lw	$fp,4($sp)
+lw	$ra,8($sp)
+add	$sp, 20
+jr	$ra
+
+
+	.text
+	.globl main
+main:
+sub	$sp, $sp, 20
+sw	$ra, 8($sp)
+sw	$fp, 4($sp)
+add	$fp, $sp, 20
+li	$t0, 4
+sw	$t0, 0($fp)
+sub	$sp, 4
+lw	$t0, 0($fp)
+sw	$t0, 4($sp)
+sub	$sp, 4
+lw	$t0, 4($fp)
+sw	$t0, 4($sp)
+jal	A_f_m
+add	$sp, 8
+sw	$v0, -8($fp)
+lw	$t0, -8($fp)
+lw	$a0, -8($fp)
+li	$v0, 1
+syscall
+la	$a0, EOL
+li	$v0, 4
+syscall
+A_main_mret:
+lw	$fp,4($sp)
+lw	$ra,8($sp)
+add	$sp, 20
+li	$v0, 10
+syscall
+.data
+EOL:	.asciiz "\n"
+
